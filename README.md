@@ -4,4 +4,5 @@
 | 脚本             | 脚本功能           | 脚本链接                                                                                  |
 |------------------|--------------------|--------------------------------------------------------------------------------------------|
 | nezha-agent-del.sh | 删除哪吒agent      | [nezha-agent-del.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/nezha-agent-del.sh) |
+| docker-compose-update.sh | docker-compose更新      | [docker-compose-update.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/docker-compose-update.sh) |
 
