@@ -6,3 +6,4 @@
 | nezha-agent-del.sh | 删除哪吒agent      | [nezha-agent-del.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/nezha-agent-del.sh) |
 | docker-compose-update.sh | docker-compose更新      | [docker-compose-update.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/docker-compose-update.sh) |
 | update_memos.sh | memos备份&更新      | [update_memos.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/update_memos.sh) |
+| caddy-install.sh | 安装caddy      | [caddy-install.sh](https://raw.githubusercontent.com/jsllxx77/script/refs/heads/main/caddy-install.sh) |
