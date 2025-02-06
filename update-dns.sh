@@ -18,10 +18,14 @@ if command -v resolvconf &> /dev/null; then
 fi
 # 方法4：使用systemd-resolved（如果已安装）
 if command -v systemd-resolve &> /dev/null; then
+    # 修改systemd-resolved的配置文件
     sudo sed -i "s/^DNS=.*/DNS=$DNS_SERVERS/" /etc/systemd/resolved.conf
-    sudo systemctl restart systemd-resolved
+    # 禁用FallbackDNS
+    sudo sed -i "s/^FallbackDNS=.*/FallbackDNS=/" /etc/systemd/resolved.conf
     # 确保resolv.conf指向systemd-resolved的配置
     sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    # 重启systemd-resolved服务
+    sudo systemctl restart systemd-resolved
 fi
 # 验证DNS修改
 echo "DNS已修改为：$DNS_SERVERS"
