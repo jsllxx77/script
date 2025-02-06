@@ -1,17 +1,36 @@
 #!/bin/bash
 
-# 提示用户输入 DNS 服务器
-read -p "请输入第一个 DNS 服务器: " dns1
-read -p "请输入第二个 DNS 服务器 (可选, 按回车跳过): " dns2
+# 提示用户输入DNS服务器地址
+echo "请输入要设置的DNS服务器地址（用空格分隔多个地址）："
+read -r DNS_SERVERS
 
-# 备份原始的 resolv.conf 文件
+# 备份原始配置文件
 sudo cp /etc/resolv.conf /etc/resolv.conf.bak
 
-# 写入新的 DNS 服务器
-if [ -z "$dns2" ]; then
-    echo -e "nameserver $dns1" | sudo tee /etc/resolv.conf > /dev/null
-else
-    echo -e "nameserver $dns1\nnameserver $dns2" | sudo tee /etc/resolv.conf > /dev/null
+# 方法1：直接修改resolv.conf
+echo "nameserver $DNS_SERVERS" | sudo tee /etc/resolv.conf > /dev/null
+
+# 方法2：修改网络接口配置文件（如果存在）
+if [ -f /etc/network/interfaces ]; then
+    sudo sed -i '/dns-nameservers/d' /etc/network/interfaces
+    echo "    dns-nameservers $DNS_SERVERS" | sudo tee -a /etc/network/interfaces > /dev/null
 fi
 
-echo "DNS 服务器已更新。"
+# 方法3：使用resolvconf（如果已安装）
+if command -v resolvconf &> /dev/null; then
+    echo "nameserver $DNS_SERVERS" | sudo tee /etc/resolvconf/resolv.conf.d/head > /dev/null
+    sudo resolvconf -u
+fi
+
+# 方法4：使用systemd-resolved（如果已安装）
+if command -v systemd-resolve &> /dev/null; then
+    sudo sed -i "s/^DNS=.*/DNS=$DNS_SERVERS/" /etc/systemd/resolved.conf
+    sudo systemctl restart systemd-resolved
+fi
+
+# 验证DNS修改
+echo "DNS已修改为：$DNS_SERVERS"
+echo "正在验证DNS配置..."
+nslookup google.com
+
+echo "DNS修改完成！"
