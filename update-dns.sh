@@ -12,6 +12,9 @@ if command -v systemd-resolve &> /dev/null; then
     sudo sed -i "s/^FallbackDNS=.*/FallbackDNS=/" /etc/systemd/resolved.conf
     # 确保resolv.conf指向systemd-resolved的配置
     sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    # 强制更新systemd-resolved的DNS配置
+    sudo resolvectl dns
+    sudo resolvectl dns "" $DNS_SERVERS
     # 重启systemd-resolved服务
     sudo systemctl restart systemd-resolved
 else
