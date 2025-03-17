@@ -2,7 +2,6 @@
 
 LOG_DIR="/var/log/caddy"
 
-# 人类可读的流量格式化函数
 format_size() {
     local size=$(printf "%.0f" "$1")
     if (( size < 1024 )); then
@@ -16,7 +15,6 @@ format_size() {
     fi
 }
 
-# 列出所有站点并统计汇总数据
 list_sites() {
     local total_requests=0
     local total_traffic=0
@@ -62,7 +60,6 @@ list_sites() {
     done
 }
 
-# 筛选 IP 日志
 extract_ip_logs() {
     local ip="$1"
     local output_file="$2"
@@ -87,7 +84,6 @@ extract_ip_logs() {
     fi
 }
 
-# 分析指定站点
 analyze_site() {
     local site="$1"
     local log_path="$LOG_DIR/$site.log"
@@ -110,7 +106,6 @@ analyze_site() {
     done
 }
 
-# 交互式菜单
 show_menu() {
     echo "欢迎使用 Caddy 日志分析工具"
     echo "请选择功能："
@@ -121,7 +116,6 @@ show_menu() {
     echo -n "请输入选项 (1-4): "
 }
 
-# 主逻辑
 main() {
     while true; do
         show_menu
@@ -157,5 +151,4 @@ main() {
     done
 }
 
-# 启动交互模式
 main
