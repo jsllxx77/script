@@ -1,8 +1,7 @@
 #!/bin/bash
 
-LOG_DIR="/var/log/caddy"  # Caddy 日志默认路径，可根据实际修改
+LOG_DIR="/var/log/caddy"
 
-# 人类可读的流量格式化函数
 format_size() {
     local size=$(printf "%.0f" "$1")
     if (( size < 1024 )); then
@@ -16,7 +15,6 @@ format_size() {
     fi
 }
 
-# 列出所有网站并统计汇总数据
 list_sites() {
     local total_requests=0
     local total_traffic=0
@@ -32,9 +30,8 @@ list_sites() {
             continue
         fi
 
-        # 统计请求数和流量 (假设 JSON 日志格式)
         requests=$(jq -r '.request.remote_addr' "$log_file" | wc -l)
-        traffic=$(jq -r 'select(.bytes_written != null) | .bytes_written' "$log_file" | awk '{sum += $1} END {printf "%.0f", sum}')
+        traffic=$(jq -r '.size // 0' "$log_file" | awk '{sum += $1} END {printf "%.0f", sum}')
         traffic=${traffic:-0}
 
         site_requests["$site_name"]=$requests
@@ -45,19 +42,16 @@ list_sites() {
         echo "  ✅ $site_name - 请求数: $requests, 流量: $(format_size "$traffic")"
     done
 
-    # 汇总数据
     echo -e "\n📊 **站点总览**"
     echo "  🌐 站点总数: ${#site_requests[@]}"
     echo "  📥 总请求数: $total_requests"
     echo "  📊 总流量: $(format_size "$total_traffic")"
 
-    # 按请求数排序 Top 5
     echo -e "\n📈 **Top 5 站点 (按请求数)**"
     for site in "${!site_requests[@]}"; do
         echo "${site_requests[$site]} $site"
     done | sort -nr | head -n 5 | awk '{printf "  %-15s 请求数: %s\n", $2, $1}'
 
-    # 按流量排序 Top 5
     echo -e "\n💾 **Top 5 站点 (按流量)**"
     for site in "${!site_traffic[@]}"; do
         echo "${site_traffic[$site]} $site"
@@ -66,21 +60,19 @@ list_sites() {
     done
 }
 
-# 筛选 IP 日志
 extract_ip_logs() {
     local ip="$1"
     local output_file="$2"
     local found=0
 
     echo "📂 正在搜索与 IP $ip 相关的日志..."
-    > "$output_file"  # 清空输出文件
+    > "$output_file"
     for log_file in "$LOG_DIR"/*.log; do
         [[ -f "$log_file" ]] || continue
-        # 检查是否为压缩文件
         if file "$log_file" | grep -q "gzip compressed data"; then
-            zcat "$log_file" | jq -r "select(.request.remote_addr | contains(\"$ip\")) | tostring" >> "$output_file"
+            zcat "$log_file" | jq -r "select(.request.remote_ip | contains(\"$ip\")) | tostring" >> "$output_file"
         else
-            jq -r "select(.request.remote_addr | contains(\"$ip\")) | tostring" "$log_file" >> "$output_file"
+            jq -r "select(.request.remote_ip | contains(\"$ip\")) | tostring" "$log_file" >> "$output_file"
         fi
         [[ -s "$output_file" ]] && found=1
     done
@@ -92,7 +84,6 @@ extract_ip_logs() {
     fi
 }
 
-# 解析指定站点的 IP 数据
 analyze_site() {
     local site="$1"
     local log_path="$LOG_DIR/$site.log"
@@ -104,20 +95,17 @@ analyze_site() {
 
     echo "日志文件: $log_path"
 
-    # 统计请求最多的 10 个 IP
     echo -e "\n📊 请求数最多的 IP:"
-    jq -r '.request.remote_addr' "$log_path" | sort | uniq -c | sort -nr | head -n 10 | awk '{printf "  %-15s 请求数: %s\n", $2, $1}'
+    jq -r '.request.remote_ip' "$log_path" | sort | uniq -c | sort -nr | head -n 10 | awk '{printf "  %-15s 请求数: %s\n", $2, $1}'
 
-    # 统计流量最多的 10 个 IP
     echo -e "\n📊 消耗带宽最多的 IP:"
-    jq -r 'select(.bytes_written != null) | [.request.remote_addr, .bytes_written] | join(" ")' "$log_path" \
+    jq -r 'select(.size != null) | [.request.remote_ip, .size] | join(" ")' "$log_path" \
         | awk '{traffic[$1] += $2} END {for (ip in traffic) printf "%.0f %s\n", traffic[ip], ip}' \
         | sort -nr | head -n 10 | while read -r size ip; do
         echo "  $ip 流量: $(format_size "$size")"
     done
 }
 
-# 解析命令行参数
 if [[ $# -eq 2 && "$1" == "-n" ]]; then
     analyze_site "$2"
 elif [[ $# -eq 1 && "$1" == "-v" ]]; then
