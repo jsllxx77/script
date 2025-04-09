@@ -3,6 +3,7 @@
 # 提示：备份数据库
 echo "正在备份数据库..."
 cp -r ~/.memos/memos_prod.db ~/.memos/memos_prod.db.bak
+cp -r ~/.memos/memos_prod.db /mnt/one/backup/memos/memos_prod.db.bak
 if [ $? -eq 0 ]; then
   echo "数据库备份成功！"
 else
