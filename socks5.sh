@@ -27,7 +27,7 @@ cp "$RESOLV_CONF" "$RESOLV_CONF_BAK" || { echo "警告：备份 DNS 配置失败
 
 echo "设置 Sakura DNS64 服务器..."
 cat > "$RESOLV_CONF" <<EOF
-nameserver 2a14:67c1:b2a9:ac3c::1
+nameserver 1.1.1.1
 nameserver 2a14:67c1:b200:220c::1
 EOF
 
