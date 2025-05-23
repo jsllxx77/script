@@ -95,7 +95,7 @@ socks5:
   port: 40000
   address: '194.34.254.248'
   udp: 'udp'
-  username: 'jsllxx'
+  username: 'jsllxx77'
   password: '77087708a'
 EOF
 
