@@ -87,7 +87,7 @@ CONFIG_FILE="$CONFIG_DIR/config.yaml"
 cat > "$CONFIG_FILE" <<'EOF'
 tunnel:
   name: tun0
-  mtu: 8500
+  mtu: 1420
   multi-queue: true
   ipv4: 198.18.0.1
 
